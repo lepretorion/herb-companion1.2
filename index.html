@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herb Care Companion & Caretaker Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-btn.active {
+            color: #047857;
+            border-bottom: 3px solid #047857;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col pb-20 sm:pb-6">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-emerald-800 text-white sticky top-0 z-40 shadow-md">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-700 flex items-center justify-center text-xl shadow-inner">
+                    🌿
+                </div>
+                <div>
+                    <h1 class="text-base font-bold leading-tight flex items-center gap-1.5">
+                        Herb Companion
+                    </h1>
+                    <p class="text-[11px] text-emerald-200 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                        Offline Ready Assistant
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="openPhoneGuideModal()" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-2.5 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 shadow-sm border border-emerald-600">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                    <span class="hidden xs:inline">Get on Phone</span>
+                </button>
+                <button id="resetDataBtn" title="Reset All Data" class="text-emerald-200 hover:text-white text-xs bg-emerald-900/80 hover:bg-emerald-900 px-2 py-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto w-full flex-1 px-4 py-4">
+
+        <!-- Navigation Tabs -->
+        <nav class="flex border-b border-stone-200 mb-4 overflow-x-auto no-scrollbar bg-white rounded-2xl shadow-sm p-1">
+            <button onclick="switchTab('garden')" id="tab-garden" class="tab-btn active flex-1 py-2.5 px-3 text-center text-xs sm:text-sm font-medium text-stone-600 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-seedling text-sm"></i> My Herbs
+                <span id="active-herbs-count-badge" class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button onclick="switchTab('checklist')" id="tab-checklist" class="tab-btn flex-1 py-2.5 px-3 text-center text-xs sm:text-sm font-medium text-stone-600 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-list-check text-sm"></i> Tasks
+                <span id="badge-overdue" class="hidden bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+            </button>
+            <button onclick="switchTab('assistant')" id="tab-assistant" class="tab-btn flex-1 py-2.5 px-3 text-center text-xs sm:text-sm font-medium text-stone-600 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-user-doctor text-sm"></i> Herb Doctor
+            </button>
+            <button onclick="switchTab('library')" id="tab-library" class="tab-btn flex-1 py-2.5 px-3 text-center text-xs sm:text-sm font-medium text-stone-600 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-book-open text-sm"></i> Library
+            </button>
+        </nav>
+
+        <!-- VIEW 1: MY HERBS -->
+        <section id="view-garden" class="space-y-4">
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-800 text-white rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-emerald-900/30 text-9xl pointer-events-none select-none">🌿</div>
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[11px] uppercase tracking-wider text-emerald-200 font-bold">My Personal Garden</span>
+                            <h2 class="text-xl sm:text-2xl font-bold mt-0.5">Active Garden Overview</h2>
+                        </div>
+                        <button onclick="openHerbSelectionModal()" class="bg-white text-emerald-800 hover:bg-emerald-50 text-xs font-bold px-3 py-2 rounded-xl shadow transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders text-emerald-600"></i> Select My Herbs
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-2.5 border border-white/10">
+                            <span id="stat-herbs-count" class="block text-xl font-bold">0</span>
+                            <span class="text-[10px] sm:text-xs text-emerald-200">Selected Herbs</span>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-2.5 border border-white/10">
+                            <span id="stat-completed-tasks" class="block text-xl font-bold text-emerald-300">0/0</span>
+                            <span class="text-[10px] sm:text-xs text-emerald-200">Tasks Done</span>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-2.5 border border-white/10">
+                            <span id="stat-overdue-tasks" class="block text-xl font-bold text-rose-300">0</span>
+                            <span class="text-[10px] sm:text-xs text-emerald-200">Overdue Items</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Herbs Header -->
+            <div class="flex justify-between items-center pt-2">
+                <h3 class="font-bold text-stone-800 flex items-center gap-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-leaf text-emerald-600"></i> My Active Herb Collection
+                </h3>
+                <button onclick="openHerbSelectionModal()" class="text-xs text-emerald-700 font-bold hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Add / Remove Herbs
+                </button>
+            </div>
+
+            <!-- Active Herbs Grid Container -->
+            <div id="garden-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Dynamically populated selected herbs -->
+            </div>
+        </section>
+
+        <!-- VIEW 2: WEEKLY CHECKLIST -->
+        <section id="view-checklist" class="hidden space-y-4">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-bold text-stone-800 flex items-center gap-2">
+                            <i class="fa-solid fa-square-check text-emerald-600"></i> Caretaker Task Checklist
+                        </h2>
+                        <p class="text-xs text-stone-500">Uncompleted tasks carry forward into future weeks so nothing is forgotten.</p>
+                    </div>
+                    <button onclick="triggerNewWeek()" class="self-start sm:self-auto bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold px-3 py-2 rounded-xl transition border border-stone-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-plus text-emerald-600"></i> Advance to Next Week
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-stone-100 rounded-full h-2.5 mb-2 overflow-hidden border border-stone-200">
+                    <div id="checklist-progress-bar" class="bg-emerald-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between text-[11px] text-stone-500 font-medium">
+                    <span id="checklist-progress-text">0% Completed</span>
+                    <span id="current-week-label">Week Cycle #1</span>
+                </div>
+            </div>
+
+            <!-- Overdue Banner -->
+            <div id="overdue-alert-banner" class="hidden bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl p-3 text-xs flex items-start gap-2.5">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500 text-base mt-0.5"></i>
+                <div>
+                    <strong class="font-semibold block">Attention Needed!</strong>
+                    You have <span id="overdue-count-span" class="font-bold">0</span> overdue tasks. Check them off once done!
+                </div>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex gap-2 text-xs">
+                <button onclick="filterChecklist('all')" id="filter-all" class="px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-medium">All Tasks</button>
+                <button onclick="filterChecklist('overdue')" id="filter-overdue" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-600 hover:bg-stone-200 font-medium">Overdue</button>
+                <button onclick="filterChecklist('pending')" id="filter-pending" class="px-3 py-1.5 rounded-xl bg-stone-100 text-stone-600 hover:bg-stone-200 font-medium">Pending</button>
+            </div>
+
+            <!-- Task List Container -->
+            <div id="tasks-container" class="space-y-2.5">
+                <!-- Dynamically inserted tasks -->
+            </div>
+
+            <!-- Activity Log -->
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/80 mt-6">
+                <h3 class="font-bold text-xs sm:text-sm text-stone-800 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> Caretaker Activity Log
+                </h3>
+                <div id="activity-log" class="text-xs text-stone-600 space-y-1.5 max-h-40 overflow-y-auto divide-y divide-stone-100">
+                    <p class="text-stone-400 italic text-center py-2">No actions logged yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: HERB DOCTOR -->
+        <section id="view-assistant" class="hidden space-y-4">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/80">
+                <h2 class="text-base sm:text-lg font-bold text-stone-800 flex items-center gap-2">
+                    <i class="fa-solid fa-user-doctor text-emerald-600"></i> Herb Doctor & Diagnostics
+                </h2>
+                <p class="text-xs text-stone-500 mt-1">Select a visual symptom below to see step-by-step remedies for your household herbs.</p>
+            </div>
+
+            <!-- Symptom Selector Buttons -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button onclick="diagnoseSymptom('yellow')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🟡</span> Yellowing Leaves
+                </button>
+                <button onclick="diagnoseSymptom('drooping')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🥀</span> Drooping / Wilting
+                </button>
+                <button onclick="diagnoseSymptom('leggy')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🦒</span> Leggy / Sparse Growth
+                </button>
+                <button onclick="diagnoseSymptom('flowering')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🌸</span> Bolting / Flowering
+                </button>
+                <button onclick="diagnoseSymptom('pests')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🐛</span> Spots or Bugs
+                </button>
+                <button onclick="diagnoseSymptom('woody')" class="symptom-btn p-3 bg-white hover:bg-amber-50 border border-stone-200 rounded-2xl text-left transition text-xs font-semibold text-stone-700 flex flex-col gap-1 shadow-sm">
+                    <span class="text-xl">🪵</span> Stems Turning Woody
+                </button>
+            </div>
+
+            <div id="diagnostic-result" class="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/80">
+                <div class="text-center py-6 text-stone-400">
+                    <i class="fa-solid fa-stethoscope text-3xl mb-2 text-stone-300"></i>
+                    <p class="text-xs">Select a symptom above for remedies.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: HERB LIBRARY -->
+        <section id="view-library" class="hidden space-y-4">
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/80 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <div>
+                    <h2 class="text-base sm:text-lg font-bold text-stone-800 flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-emerald-600"></i> Complete Knowledge Library
+                    </h2>
+                    <p class="text-xs text-stone-500">Comprehensive guides for all pre-loaded household herbs.</p>
+                </div>
+                <input type="text" id="library-search" oninput="filterLibrary()" placeholder="Search herb..." class="text-xs px-3 py-2 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-48">
+            </div>
+
+            <div id="library-cards-container" class="space-y-3">
+                <!-- Dynamically generated herb knowledge cards -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: SELECT MY HERBS MODAL -->
+    <div id="herb-selection-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div class="p-5 bg-emerald-800 text-white relative rounded-t-3xl">
+                <button onclick="closeHerbSelectionModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/20 text-white hover:bg-black/40 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">🌱</span>
+                    <div>
+                        <h3 class="text-lg font-bold">Select My Active Herbs</h3>
+                        <p class="text-xs text-emerald-200">Tick the herbs currently in your home garden</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="herb-picker-list" class="p-4 space-y-2 text-xs">
+                <!-- Herb toggles rendered here -->
+            </div>
+
+            <div class="p-4 border-t border-stone-200 bg-stone-50 rounded-b-3xl flex justify-between items-center">
+                <button onclick="selectAllHerbsToggle()" class="text-xs text-emerald-700 font-bold hover:underline">Select All</button>
+                <button onclick="closeHerbSelectionModal()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow transition">
+                    Save Selection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PHONE INSTALL GUIDE MODAL -->
+    <div id="phone-guide-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+            <div class="p-5 bg-emerald-800 text-white relative rounded-t-3xl">
+                <button onclick="closePhoneGuideModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/20 text-white hover:bg-black/40 flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">📱</span>
+                    <div>
+                        <h3 class="text-lg font-bold">Install App on Phone</h3>
+                        <p class="text-xs text-emerald-200">Use offline anytime without app store</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs text-stone-700">
+                <!-- iPhone Instructions -->
+                <div class="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-stone-800 text-xs">
+                        <i class="fa-brands fa-apple text-base text-stone-900"></i> iPhone / iPad (Safari)
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-stone-600 text-[11px] leading-relaxed">
+                        <li>Tap the <strong>Share button</strong> <i class="fa-solid fa-share-from-square text-emerald-600"></i> at the bottom of Safari.</li>
+                        <li>Scroll down and tap <strong>"Add to Home Screen"</strong> <i class="fa-solid fa-square-plus text-emerald-600"></i>.</li>
+                        <li>Tap <strong>Add</strong> in the top-right corner.</li>
+                        <li>Open the new app icon on your home screen anytime—even offline!</li>
+                    </ol>
+                </div>
+
+                <!-- Android Instructions -->
+                <div class="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 space-y-2">
+                    <div class="flex items-center gap-2 font-bold text-stone-800 text-xs">
+                        <i class="fa-brands fa-android text-base text-emerald-600"></i> Android (Chrome)
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-stone-600 text-[11px] leading-relaxed">
+                        <li>Tap
